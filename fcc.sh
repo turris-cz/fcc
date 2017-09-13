@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SSH="ssh root@192.168.4.1"
+SSH="ssh root@192.168.2.1"
 
 reload_hostapd() {
     if [ -n "`$SSH cat /var/run/wifi-$PHY.pid`" ]; then
@@ -34,27 +34,13 @@ set_tx_power() {
     $SSH iw phy $PHY set txpower fixed $VALUE
 }
 
-set_channel() {
-    choose_card
-    echo
-    echo "WARNING: Changing channel will clear MCS settings"
-    echo
-    echo -n "Enter channel number: "
-    read chnum
-    echo -n "Enter channel width (legacy, 20, 40 80): "
-    read chw
+generate_hostpad() {
+    chnum="$1"
+    chw="$2"
+    SIGN="$3"
     if [ $chw = legacy ]; then
         WIDTH=""
     else
-        if [ $chw -gt 20 ]; then
-            echo -n "HT40+ or HT40-? "
-            read direct
-            if [ $direct = "HT40+" ]; then
-                SIGN="+"
-            else
-                SIGN="-"
-            fi
-        fi
         VTH_W="0"
         if [ $chw -gt 40 ]; then
             VTH_W="1"
@@ -103,6 +89,32 @@ bridge=br-lan
 beacon_int=15
 bssid=`$SSH ip a s dev wlan0 | sed -n 's|.*link/ether\ \([^[:blank:]]*\)\ .*|\1|p'`
 " | $SSH cat \> /var/run/hostapd-$PHY.conf
+
+}
+
+set_channel() {
+    choose_card
+    echo
+    echo "WARNING: Changing channel will clear MCS settings"
+    echo
+    echo -n "Enter channel number: "
+    read chnum
+    echo -n "Enter channel width (legacy, 20, 40 80): "
+    read chw
+    if [ $chw = legacy ]; then
+        WIDTH=""
+    else
+        if [ $chw -gt 20 ]; then
+            echo -n "HT40+ or HT40-? "
+            read direct
+            if [ $direct = "HT40+" ]; then
+                SIGN="+"
+            else
+                SIGN="-"
+            fi
+        fi
+    fi
+    generate_hostpad "$chnum" "$chw" "$SIGN"
     reload_hostapd
 }
 
@@ -140,6 +152,13 @@ toogle_card() {
         $SSH ip l s down dev $WLAN
     else
         $SSH ip l s up dev $WLAN
+        if [ -z "`$SSH ls /var/run/hostapd-$PHY.conf`" ]; then
+            if [ $WLAN = wlan0 ]; then
+                generate_hostpad "36" "80" "+"
+            else
+                generate_hostpad "6" "legacy" ""
+            fi
+        fi
         $SSH /usr/sbin/hostapd -P /var/run/wifi-$PHY.pid -B /var/run/hostapd-$PHY.conf \& > /dev/null 2>&1
     fi
 }
