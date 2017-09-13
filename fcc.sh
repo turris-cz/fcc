@@ -23,7 +23,7 @@ usb_test() {
     if [ $ans = B ]; then
         DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/5-1/5-1:1.0/host*/target*/*/block/sd[a-z]))
     else
-        DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/5-1/5-1:1.0/host*/target*/*/block/sd[a-z]))
+        DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/3-1/3-1:1.0/host*/target*/*/block/sd[a-z]))
     fi
     echo
     echo "Press Ctrl+C to stop transmitting data"
