@@ -14,8 +14,8 @@ get_channels() {
 }
 
 usb_test() {
-    ans = ""
-    while [ "$ans" \!= F ] && [ "$ans" \! B ]; do
+    ans=""
+    while [ "$ans" \!= F ] && [ "$ans" \!= B ]; do
         echo
         echo "Do you want to read from front usb or back usb? [F/B] "
         read ans
@@ -259,7 +259,7 @@ main_menu() {
         read ans
         case $ans in
             0) exit 0;;
-            2) usb_test ;;
+            1) usb_test ;;
             2) toogle_card ;;
             3) set_tx_power ;;
             4) set_mcs ;;
