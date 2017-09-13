@@ -13,6 +13,25 @@ get_channels() {
     $SSH iw $PHY info | sed -n 's|.*\* \([0-9]*\) MHz \[\([0-9]*\)\] (\([0-9.]*\) dBm.*|channel \2 (\1 MHz) - maximum power \3 dBm|p'
 }
 
+usb_test() {
+    ans = ""
+    while [ "$ans" \!= F ] && [ "$ans" \! B ]; do
+        echo
+        echo "Do you want to read from front usb or back usb? [F/B] "
+        read ans
+    done
+    if [ $ans = B ]; then
+        DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/5-1/5-1:1.0/host*/target*/*/block/sd[a-z]))
+    else
+        DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/5-1/5-1:1.0/host*/target*/*/block/sd[a-z]))
+    fi
+    echo
+    echo "Press Ctrl+C to stop transmitting data"
+    while $SSH cat /dev/$DEV | pv > /dev/null; do
+        true
+    done
+}
+
 set_frag() {
     choose_card
     echo
