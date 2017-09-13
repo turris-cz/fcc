@@ -38,6 +38,8 @@ generate_hostpad() {
     chnum="$1"
     chw="$2"
     SIGN="$3"
+    HT_CAP_ADD=""
+    [ $WLAN = wlan1 ] || HT_CAP_ADD="[LDPC][MAX-AMSDU-7935]"
     if [ $chw = legacy ]; then
         WIDTH=""
     else
@@ -48,7 +50,7 @@ generate_hostpad() {
         WIDTH="
 ieee80211n=1
 ht_coex=0
-ht_capab=`[ $chw -lt 30 ] || echo "[HT40$SIGN]"`[LDPC][SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][MAX-AMSDU-7935][DSSS_CCK-40]
+ht_capab=`[ $chw -lt 30 ] || echo "[HT40$SIGN]"`${HT_CAP_ADD}[SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][DSSS_CCK-40]
 "
         if [ $chw -gt 20 ] && [ $chnum -gt 13 ]; then
             WIDTH="$WIDTH
