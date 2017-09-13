@@ -259,6 +259,7 @@ main_menu() {
         read ans
         case $ans in
             0) exit 0;;
+            2) usb_test ;;
             2) toogle_card ;;
             3) set_tx_power ;;
             4) set_mcs ;;
