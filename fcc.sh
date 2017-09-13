@@ -259,11 +259,10 @@ done
 
 $SSH wifi down
 for i in 0 1; do
-    $SSH iw phy$i interface add wlan$i type managed
-    $SSH iw phy$i power_safe off
-    $SSH iw phy$i power_safe off
-    $SSH kill \`cat /var/run/wifi-phy$i.pid\`
-    $SSH ip l s down dev wlan$i
+    $SSH iw phy$i interface add wlan$i type managed > /dev/null 2>&1
+    $SSH iw phy$i power_safe off > /dev/null 2>&1
+    $SSH kill \`cat /var/run/wifi-phy$i.pid\` > /dev/null 2>&1
+    $SSH ip l s down dev wlan$i > /dev/null 2>&1
 done
 
 main_menu
