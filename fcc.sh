@@ -25,11 +25,15 @@ usb_test() {
     else
         DEV=$(basename $($SSH ls -1d /sys/bus/usb/devices/3-1/3-1:1.0/host*/target*/*/block/sd[a-z]))
     fi
-    echo
-    echo "Press Ctrl+C to stop transmitting data"
-    while $SSH cat /dev/$DEV | pv > /dev/null; do
-        true
-    done
+    if [ -z "$DEV" ]; then
+        echo "Port is empty"
+    else
+        echo
+        echo "Press Ctrl+C to stop transmitting data"
+        while $SSH cat /dev/$DEV | pv > /dev/null; do
+            true
+        done
+    fi
 }
 
 set_frag() {
