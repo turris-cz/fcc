@@ -90,6 +90,9 @@ reload_hostapd() {
     if [ "$BITRATE" ]; then
         $SSH iw dev $WLAN set bitrates $BITRATE
     fi
+    if [ $chw -gt 20 ] && [ $chnum -lt 14 ]; then
+        $SSH iw dev $WLAN set channel $chnum HT40$SIGN
+    fi
     save_settings
 }
 
