@@ -5,8 +5,8 @@ SSH="ssh root@192.168.2.1"
 reload_hostapd() {
     if [ -n "`$SSH cat /var/run/wifi-$PHY.pid`" ]; then
         $SSH kill `$SSH cat /var/run/wifi-$PHY.pid`
-        $SSH /usr/sbin/hostapd -P /var/run/wifi-$PHY.pid -B /var/run/hostapd-$PHY.conf \& > /dev/null 2> /dev/null 
     fi
+    $SSH /usr/sbin/hostapd -P /var/run/wifi-$PHY.pid -B /var/run/hostapd-$PHY.conf \& > /dev/null 2> /dev/null 
 }
 
 get_channels() {
@@ -109,7 +109,7 @@ ignore_broadcast_ssid=0
 uapsd_advertisement_enabled=1
 auth_algs=1
 wpa=0
-ssid=Turris-Omnia-Test
+ssid=Turris-Omnia-Test-`if [ $WLAN = wlan1 ]; then echo ath9k; else echo ath10k; fi`
 bridge=br-lan
 beacon_int=15
 bssid=`$SSH ip a s dev wlan0 | sed -n 's|.*link/ether\ \([^[:blank:]]*\)\ .*|\1|p'`
@@ -170,6 +170,16 @@ choose_card() {
     WLAN=wlan$ans
 }
 
+start_default() {
+    choose_card
+    if [ $WLAN = wlan0 ]; then
+        generate_hostpad "36" "80" "+"
+    else
+        generate_hostpad "6" "legacy" ""
+    fi
+    reload_hostapd
+}
+
 toogle_card() {
     choose_card
     if [ "`$SSH ps w | grep hostapd | grep $PHY`" ]; then
@@ -184,7 +194,7 @@ toogle_card() {
                 generate_hostpad "6" "legacy" ""
             fi
         fi
-        $SSH /usr/sbin/hostapd -P /var/run/wifi-$PHY.pid -B /var/run/hostapd-$PHY.conf \& > /dev/null 2>&1
+        reload_hostapd
     fi
 }
 
@@ -213,7 +223,7 @@ set_mcs() {
         read ans
         case $ans in
             0) DONE="yes";;
-            1) echo -n "Enter legacy bitrate: "; read bitrate; LEGACY="legacy-$BAND $bitrate" ;;
+            1) echo -n "Enter legacy bitrate (in MBits): "; read bitrate; LEGACY="legacy-$BAND $bitrate" ;;
             2) echo -n "Enter HT MCS: "; read mcs; HT="ht-mcs-$BAND $mcs" ;;
             3) echo -n "Enter VHT NSS: "; read nss; echo -n "Enter VHT MCS: "; read mcs; VHT="vht-mcs-$BAND $nss:$mcs" ;;
             4) GI="sgi-$BAND" ;;
@@ -257,6 +267,7 @@ main_menu() {
         echo " 4) set MCS"
         echo " 5) set channel"
         echo " 6) set beacon interval"
+        echo " 7) set card to default and enable"
 #        echo " 5) set fragmentation threshold"
         echo
         echo -n "Enter your command: "
@@ -269,6 +280,7 @@ main_menu() {
             4) set_mcs ;;
             5) set_channel ;;
             6) set_beacon ;;
+            7) start_default ;;
 #            5) set_frag ;;
             *) echo "Invalid option!";;
         esac
