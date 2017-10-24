@@ -1,6 +1,10 @@
 #!/bin/sh
 
-SSH="ssh root@192.168.2.1"
+ssh_action() {
+    ssh root@192.168.2.1 "$@" 2> /dev/null
+}
+
+SSH=ssh_action
 
 save_settings() {
     cat > /tmp/fcc-$WLAN << EOF
@@ -90,7 +94,7 @@ reload_hostapd() {
     if [ "$BITRATE" ]; then
         $SSH iw dev $WLAN set bitrates $BITRATE
     fi
-    if [ $chw -gt 20 ] && [ $chnum -lt 14 ]; then
+    if [ $chw \!= legacy ] && [ $chw -gt 20 ] && [ $chnum -lt 14 ]; then
         $SSH iw dev $WLAN set channel $chnum HT40$SIGN
     fi
     save_settings
