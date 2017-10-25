@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ssh_action() {
-    ssh root@192.168.2.1 "$@" 2> /dev/null
+    ssh -q root@192.168.2.1 "$@"
 }
 
 SSH=ssh_action
@@ -73,7 +73,7 @@ wpa=0
 ssid=Turris-Omnia-Test-`if [ $WLAN = wlan1 ]; then echo ath9k; else echo ath10k; fi`
 bridge=br-lan
 beacon_int=$beacon_int
-bssid=`$SSH ip a s dev wlan0 | sed -n 's|.*link/ether\ \([^[:blank:]]*\)\ .*|\1|p'`
+bssid=04:f0:21:32:33:0`echo $WLAN | sed 's|wlan||'`
 " | $SSH cat \> /var/run/hostapd-$PHY.conf
 }
 
