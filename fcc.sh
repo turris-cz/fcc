@@ -135,8 +135,10 @@ usb_test() {
     done
     if [ $ans = B ]; then
         DEV=$($SSH find /sys/bus/usb/devices/4\*/\* | sed -n 's|.*block/\(sd.\)/.*|\1|p' | uniq)
+        [ -n "$DEV" ] || DEV=$($SSH find /sys/bus/usb/devices/5\*/\* | sed -n 's|.*block/\(sd.\)/.*|\1|p' | uniq)
     else
         DEV=$($SSH find /sys/bus/usb/devices/2\*/\* | sed -n 's|.*block/\(sd.\)/.*|\1|p' | uniq)
+        [ -n "$DEV" ] || DEV=$($SSH find /sys/bus/usb/devices/3\*/\* | sed -n 's|.*block/\(sd.\)/.*|\1|p' | uniq)
     fi
     if [ -z "$DEV" ]; then
         echo "Port is empty"
